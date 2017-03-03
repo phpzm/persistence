@@ -28,13 +28,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Simples\\Core\\": "src/"
-    },
-    "files": [
-      "bootstrap/index.php"
-    ]
-  },
-  "scripts": {
-    "sami": "php sami.phar update config/sami.php"
+      "Simples\\Persistence\\": "src/"
+    }
   }
 }
