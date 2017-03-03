@@ -364,7 +364,7 @@ class Field
     public function primaryKey(): Field
     {
         $this->option('primaryKey', true);
-        return $this->integer()->recover(false);
+        return $this->integer()->update(false)->recover(false);
     }
 
     /**
