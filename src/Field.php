@@ -217,11 +217,18 @@ class Field
     /**
      * @param string $class
      * @param string $target
+     * @param string $name (null)
      * @return Field
      */
-    public function referencedBy(string $class, string $target): Field
+    public function referencedBy(string $class, string $target, string $name = null): Field
     {
-        $this->referenced[$target] = $class;
+        if (!$name) {
+            $name = get_class_short_name($class);
+        }
+        $this->referenced[$target] = [
+            'name' => $name,
+            'class' => $class
+        ];
         return $this;
     }
 
@@ -230,16 +237,21 @@ class Field
      *
      * @param string $class
      * @param string $referenced
-     * @param bool $nullable
+     * @param bool $nullable (false)
+     * @param string $name (null)
      * @return Field
      * @throws SimplesRunTimeError
      */
-    public function referencesTo(string $class, string $referenced, bool $nullable = false): Field
+    public function referencesTo(string $class, string $referenced, bool $nullable = false, string $name = null): Field
     {
         if (off($this->references, 'class')) {
             throw new SimplesRunTimeError("Relationship already defined to '{$this->references->class}'");
         }
+        if (!$name) {
+            $name = get_class_short_name($class);
+        }
         $this->references = (object)[
+            'name' => $name,
             'collection' => $this->getCollection(),
             'referenced' => $referenced,
             'class' => $class
