@@ -3,7 +3,9 @@
 namespace Simples\Persistence\SQL;
 
 use Simples\Error\SimplesRunTimeError;
+use Simples\Kernel\Wrapper;
 use Simples\Persistence\Filter;
+use Simples\Persistence\FilterMap;
 use Simples\Persistence\Fusion;
 
 /**
@@ -91,10 +93,10 @@ trait Modifiers
      * @param array $filters
      * @param string $separator
      * @return string
+     * @throws SimplesRunTimeError
      */
     protected function parseWhere(array $filters, string $separator): string
     {
-        $solver = new SolverFilter();
         $parsed = [];
         foreach ($filters as $filter) {
             if (is_array($filter)) {
@@ -103,7 +105,19 @@ trait Modifiers
                 continue;
             }
             /** @var Filter $filter */
-            $parsed[] = $solver->render($filter);
+            $rule = $filter->getRule();
+            if (!FilterMap::has($this->scope(), $rule)) {
+                throw new SimplesRunTimeError("SQLFilterSolver can't resolve '{$rule}'");
+            }
+            $collection = $filter->getCollection();
+            if ($filter->hasFrom()) {
+                $collection = '__' . strtoupper($filter->getFrom()->getName()) . '__';
+            }
+            $name = "{$collection}.{$filter->getName()}";
+            $value = $filter->getValue();
+            $not = $filter->isNot() ? 'NOT ' : '';
+            /** @var Driver $this */
+            $parsed[] = "{$not}(" . FilterMap::parseMarkup($this, $rule, $name, $value) . ")";
         }
         return implode($separator, $parsed);
     }

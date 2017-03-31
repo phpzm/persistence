@@ -3,14 +3,15 @@
 namespace Simples\Persistence\SQL;
 
 use PDO;
-use Simples\Persistence\Error\SimplesPersistenceError;
-use Throwable;
 use Simples\Persistence\Driver as Persistence;
+use Simples\Persistence\Error\SimplesPersistenceError;
+use Simples\Persistence\FilterMap;
 use Simples\Persistence\SQL\Error\SimplesPersistenceDataError;
 use Simples\Persistence\SQL\Operations\Create;
 use Simples\Persistence\SQL\Operations\Destroy;
 use Simples\Persistence\SQL\Operations\Read;
 use Simples\Persistence\SQL\Operations\Update;
+use Throwable;
 
 /**
  * Class SQLDriver
@@ -30,6 +31,8 @@ abstract class Driver extends Connection implements Persistence
     public function __construct(array $settings)
     {
         parent::__construct($settings);
+
+        $this->filters($this->scope);
     }
 
     /**
@@ -63,7 +66,7 @@ abstract class Driver extends Connection implements Persistence
      * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
-    final public function create(array $clausules, array $values)
+    final public function create(array $clausules, array $values): string
     {
         $sql = $this->getInsert($clausules);
         $parameters = array_values($values);
@@ -71,7 +74,7 @@ abstract class Driver extends Connection implements Persistence
         $statement = $this->statement($sql);
         try {
             if ($statement && $statement->execute($parameters)) {
-                return $this->connection()->lastInsertId();
+                return (string)$this->connection()->lastInsertId();
             }
         } catch (Throwable $error) {
             throw new SimplesPersistenceError([$sql, $parameters], [$error]);
@@ -86,7 +89,7 @@ abstract class Driver extends Connection implements Persistence
      * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
-    final public function read(array $clausules, array $values = [])
+    final public function read(array $clausules, array $values = []): array
     {
         $sql = $this->getSelect($clausules);
         $parameters = array_values($values);
@@ -110,7 +113,7 @@ abstract class Driver extends Connection implements Persistence
      * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
-    final public function update(array $clausules, array $values, array $filters)
+    final public function update(array $clausules, array $values, array $filters): int
     {
         $sql = $this->getUpdate($clausules);
         $parameters = array_merge(array_values($values), array_values($filters));
@@ -133,7 +136,7 @@ abstract class Driver extends Connection implements Persistence
      * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
-    final public function destroy(array $clausules, array $values)
+    final public function destroy(array $clausules, array $values): int
     {
         $sql = $this->getDelete($clausules);
         $parameters = array_values($values);
@@ -147,5 +150,27 @@ abstract class Driver extends Connection implements Persistence
             throw new SimplesPersistenceError([$sql, $parameters], [$error]);
         }
         throw new SimplesPersistenceDataError([$statement->errorInfo()], [$sql, $parameters]);
+    }
+
+    /**
+     * @param string $scope
+     */
+    protected function filters(string $scope)
+    {
+        $getValue = function ($value) {
+            return $value;
+        };
+
+        FilterMap::add($scope, 'equal', $getValue, function ($name) {
+            return "{$name} = ?";
+        });
+
+        FilterMap::add($scope, 'not', $getValue, function ($name) {
+            return "{$name} <> ?";
+        });
+
+        FilterMap::add($scope, 'blank', $getValue, function ($name) {
+            return "({$name} IS NULL) OR (NOT {$name})";
+        });
     }
 }

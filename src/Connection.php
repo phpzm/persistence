@@ -22,6 +22,11 @@ abstract class Connection
     protected $settings = [];
 
     /**
+     * @var string
+     */
+    protected $scope;
+
+    /**
      * @var array
      */
     protected $logs = [];
@@ -41,6 +46,14 @@ abstract class Connection
     abstract protected function connection();
 
     /**
+     * @return string
+     */
+    public function getScope(): string
+    {
+        return $this->scope;
+    }
+
+    /**
      * @return array
      */
     public function getSettings(): array
@@ -57,7 +70,6 @@ abstract class Connection
     }
 
     /**
-     * @SuppressWarnings("BooleanArgumentFlag")
      *
      * @param string $command
      * @param array $parameters

@@ -191,7 +191,6 @@ class Field
     }
 
     /**
-     * @SuppressWarnings("BooleanArgumentFlag")
      *
      * @param string|array $rule
      * @param array|string $options ('')
@@ -237,7 +236,6 @@ class Field
     }
 
     /**
-     * @SuppressWarnings("BooleanArgumentFlag")
      *
      * @param string $class
      * @param string $referenced
@@ -299,7 +297,6 @@ class Field
     }
 
     /**
-     * @SuppressWarnings("BooleanArgumentFlag")
      *
      * @param array $rules
      * @return Field

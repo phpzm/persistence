@@ -39,7 +39,6 @@ class Fusion
     private $rename;
 
     /**
-     * @SuppressWarnings("BooleanArgumentFlag")
      *
      * Fusion constructor.
      * @param string $collection
@@ -58,6 +57,21 @@ class Fusion
         $this->references = $references;
         $this->exclusive = $exclusive;
         $this->rename = $rename;
+    }
+
+    /**
+     * @param string $collection
+     * @param string $referenced
+     * @param string $source
+     * @param string $references
+     * @param bool $exclusive
+     * @param bool $rename
+     * @return static
+     */
+    public static function create(string $collection, string $referenced, string $source, string $references,
+                                  $exclusive = false, $rename = true)
+    {
+        return new static($collection, $referenced, $source, $references, $exclusive, $rename);
     }
 
     /**

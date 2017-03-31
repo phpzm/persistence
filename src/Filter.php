@@ -35,9 +35,35 @@ class Filter
     /**
      * @var string
      */
-    const RULE_EQUAL = 'equal',  RULE_NOT = 'not', RULE_NEAR = 'near', RULE_BETWEEN = 'between',
-        RULE_DAY = 'day', RULE_MONTH = 'month', RULE_YEAR = 'year', RULE_COMPETENCE = 'competence',
-        RULE_BLANK = 'blank';
+    const RULE_EQUAL = 'equal';
+    /**
+     * @var string
+     */
+    const RULE_NOT = 'not';
+    /**
+     * @var string
+     */
+    const RULE_LIKE = 'like';
+    /**
+     * @var string
+     */
+    const RULE_BETWEEN = 'between';
+    /**
+     * @var string
+     */
+    const RULE_DAY = 'day';
+    /**
+     * @var string
+     */
+    const RULE_MONTH = 'month';
+    /**
+     * @var string
+     */
+    const RULE_YEAR = 'year';
+    /**
+     * @var string
+     */
+    const RULE_BLANK = 'blank';
 
     /**
      * Filter constructor.
@@ -46,7 +72,6 @@ class Filter
      * @param mixed $value
      * @param string $rule (null)
      * @param bool $not (false)
-     * @SuppressWarnings("BooleanArgumentFlag")
      */
     public function __construct(Field $field, $value, $rule = null, $not = false)
     {
@@ -54,6 +79,76 @@ class Filter
         $this->value = $value;
         $this->not = $not;
         $this->parseRule($rule);
+    }
+
+    /**
+     * @param Field $field
+     * @param $value
+     * @param null $rule
+     * @param bool $not
+     * @return static
+     */
+    public static function create(Field $field, $value, $rule = null, $not = false)
+    {
+        return new static($field, $value, $rule, $not);
+    }
+
+    /**
+     * @param $rule
+     */
+    private function parseRule($rule)
+    {
+        $this->rule = $rule;
+        if (!$rule) {
+            $this->rule = static::RULE_EQUAL;
+            $peaces = explode(App::options('filter'), $this->value);
+            $filter = (string)$peaces[0];
+            if (substr($filter, 0, 1) === '!') {
+                $filter = substr($filter, 1);
+                $this->not = true;
+            }
+            if (isset($peaces[1])) {
+                $this->rule = $filter;
+                array_shift($peaces);
+                $this->value = implode(App::options('filter'), $peaces);
+            }
+        }
+    }
+
+    /**
+     * @param string $rule
+     * @param mixed $value
+     * @return string
+     */
+    public static function apply(string $rule, $value = null): string
+    {
+        $marker = App::options('filter');
+        if (!is_scalar($value)) {
+            $value = JSON::encode($value);
+        }
+        return "{$rule}{$marker}{$value}";
+    }
+
+    /**
+     * @param array $filter
+     * @param string $separator
+     * @return array
+     */
+    public static function generate(array $filter, string $separator = __AND__): array
+    {
+        return [
+            'separator' => $separator,
+            'filter' => $filter
+        ];
+    }
+
+    /**
+     * @param Driver $driver
+     * @return mixed
+     */
+    public function getParsedValue(Driver $driver)
+    {
+        return FilterMap::parseValue($driver, $this->rule, $this->value);
     }
 
     /**
@@ -118,96 +213,5 @@ class Filter
     public function isNot(): bool
     {
         return $this->not;
-    }
-
-    /**
-     * @param $rule
-     * @return bool
-     */
-    private function ruleExists($rule): bool
-    {
-        return defined('static::RULE_' . strtoupper($rule));
-    }
-
-    /**
-     * @param string $rule
-     * @param mixed $value
-     * @return string
-     */
-    public static function apply(string $rule, $value = null): string
-    {
-        $marker = App::options('filter');
-        if (!is_scalar($value)) {
-            $value = JSON::encode($value);
-        }
-        return "{$rule}{$marker}{$value}";
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParsedValue()
-    {
-        switch ($this->rule) {
-            case static::RULE_BETWEEN:
-            case static::RULE_COMPETENCE: {
-                $separator = ',';
-                $size = 2;
-                if ($this->rule === static::RULE_COMPETENCE) {
-                    $separator = '/';
-                }
-                return $this->separator($this->value, $separator, $size);
-            }
-            case static::RULE_NEAR: {
-                $value = $this->value;
-                if (!is_scalar($value)) {
-                    $value = JSON::encode($value);
-                }
-                return "%{$value}%";
-            }
-        }
-        return $this->value;
-    }
-
-    /**
-     * @param string $value
-     * @param string $separator
-     * @param int $size
-     * @return array
-     * @throws SimplesRunTimeError
-     */
-    protected function separator(string $value, string $separator, int $size): array
-    {
-        $array = explode($separator, $value);
-        if (count($array) < $size) {
-            $count = count($array);
-            throw new SimplesRunTimeError("Invalid number of arguments to create a rule. " .
-                "Expected '{$size}' given '{$count}' to rule '{$this->rule}'");
-        }
-        if (count($array) > $size) {
-            $array = array_slice($array, 0, $size);
-        }
-        return $array;
-    }
-
-    /**
-     * @param $rule
-     */
-    private function parseRule($rule)
-    {
-        if (!$rule) {
-            $this->rule = static::RULE_EQUAL;
-            $peaces = explode(App::options('filter'), $this->value);
-            $filter = (string)$peaces[0];
-            if (substr($filter, 0, 1) === '!') {
-                $filter = substr($filter, 1);
-                $this->not = true;
-            }
-            if ($this->ruleExists($filter)) {
-                $this->rule = $filter;
-                array_shift($peaces);
-                $this->value = implode(App::options('filter'), $peaces);
-            }
-        }
     }
 }

@@ -9,33 +9,38 @@ namespace Simples\Persistence;
 interface Driver
 {
     /**
-     * @return bool
+     * @return string
      */
-    public function start();
+    public function scope(): string;
 
     /**
      * @return bool
      */
-    public function commit();
+    public function start(): bool;
 
     /**
      * @return bool
      */
-    public function rollback();
+    public function commit(): bool;
+
+    /**
+     * @return bool
+     */
+    public function rollback(): bool;
 
     /**
      * @param array $clausules
      * @param array $values
      * @return string
      */
-    public function create(array $clausules, array $values);
+    public function create(array $clausules, array $values): string;
 
     /**
      * @param array $clausules
      * @param array $values
      * @return array
      */
-    public function read(array $clausules, array $values = []);
+    public function read(array $clausules, array $values = []): array;
 
     /**
      * @param array $clausules
@@ -43,12 +48,12 @@ interface Driver
      * @param array $filters
      * @return int
      */
-    public function update(array $clausules, array $values, array $filters);
+    public function update(array $clausules, array $values, array $filters): int;
 
     /**
      * @param array $clausules
      * @param array $values
      * @return int
      */
-    public function destroy(array $clausules, array $values);
+    public function destroy(array $clausules, array $values): int;
 }
