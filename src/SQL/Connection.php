@@ -4,13 +4,13 @@ namespace Simples\Persistence\SQL;
 
 use PDO;
 use PDOStatement;
-use Simples\Persistence\Connection;
+use Simples\Persistence\Connection as Persistence;
 
 /**
  * Class Connection
  * @package Simples\Persistence
  */
-abstract class SQLConnection extends Connection
+abstract class Connection extends Persistence
 {
     /**
      * @return PDO

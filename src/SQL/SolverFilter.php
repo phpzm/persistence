@@ -6,10 +6,10 @@ use Simples\Error\SimplesRunTimeError;
 use Simples\Persistence\Filter;
 
 /**
- * Class SQLFilterSolver
+ * Class SolverFilter
  * @package Simples\Persistence\SQL
  */
-class SQLSolverFilter
+class SolverFilter
 {
     /**
      * @param Filter $filter

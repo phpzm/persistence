@@ -2,13 +2,13 @@
 
 namespace Simples\Persistence\Drivers;
 
-use Simples\Persistence\SQL\SQLDriver;
+use Simples\Persistence\SQL\Driver;
 
 /**
  * Class MySQL
  * @package Simples\Persistence
  */
-class MySQL extends SQLDriver
+class MySQL extends Driver
 {
     /**
      * @return string

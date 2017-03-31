@@ -5,10 +5,10 @@ namespace Simples\Persistence\SQL;
 use Simples\Persistence\Field;
 
 /**
- * Class SQLSolverColumn
+ * Class SolverColumn
  * @package Simples\Persistence\SQL
  */
-class SQLSolverColumn
+class SolverColumn
 {
     /**
      * @param string|Field $column

@@ -3,6 +3,7 @@
 namespace Simples\Persistence;
 
 use Simples\Error\SimplesRunTimeError;
+use Simples\Persistence\Utils\Naming;
 use stdClass;
 
 /**
@@ -54,6 +55,11 @@ use stdClass;
  */
 class Field
 {
+    /**
+     * @trait Naming
+     */
+    use Naming;
+
     /**
      * @var string
      */
@@ -153,15 +159,13 @@ class Field
             $this->options[$name] = $arguments[0];
             return $this;
         }
-        if (substr($name, 0, 3) === 'get') {
-            return $this->option(lcfirst(substr($name, 3)));
-        }
-        if (substr($name, 0, 2) === 'is') {
-            return $this->option(lcfirst(substr($name, 2)));
-        }
-        if (substr($name, 0, 3) === 'set' && isset($arguments[0])) {
-            $this->option(lcfirst(substr($name, 3)), $arguments[0]);
-            return $this;
+        $parseName = $this->parseName($name);
+        if ($parseName) {
+            if (isset($arguments[0])) {
+                $this->option($parseName, $arguments[0]);
+                return $this;
+            }
+            return $this->option($parseName);
         }
         if (in_array($name, $this->supported, true)) {
             $this->option('type', $name);
@@ -462,4 +466,5 @@ class Field
     {
         return $this->map;
     }
+
 }

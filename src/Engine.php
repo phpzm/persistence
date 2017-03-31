@@ -12,7 +12,7 @@ use Simples\Kernel\App;
  * @method $this source (string $source)
  * @method $this relation (array $relations)
  * @method $this fields (array $fields)
- * @method $this filter (array $filter)
+ * @method $this where (array $filter)
  * @method $this order (array $order)
  * @method $this group (array $group)
  * @method $this having (array $having)

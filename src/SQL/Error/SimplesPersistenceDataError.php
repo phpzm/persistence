@@ -8,7 +8,7 @@ use Simples\Persistence\Error\SimplesPersistenceError;
  * Class PersistenceException
  * @package Simples\Error
  */
-class SimplesSQLDataErrorSimples extends SimplesPersistenceError
+class SimplesPersistenceDataError extends SimplesPersistenceError
 {
     /**
      * @var array
