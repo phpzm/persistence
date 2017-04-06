@@ -39,14 +39,13 @@ class SolverColumn
         $name = $column->getName();
 
         switch ($column->getType()) {
-            case Field::AGGREGATOR_COUNT: {
+            case Field::AGGREGATOR_COUNT:
                 $field = "COUNT(`{$collection}`.`{$name}`)";
                 /** @noinspection PhpAssignmentInConditionInspection */
                 if ($alias = off($column->getOptions(), 'alias')) {
                     $field = "{$field} AS {$alias}";
                 }
                 break;
-            }
             default:
                 $field = "`{$collection}`.`{$name}`";
         }

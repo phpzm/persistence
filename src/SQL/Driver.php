@@ -22,7 +22,7 @@ abstract class Driver extends Connection implements Persistence
     /**
      * @trait Operations
      */
-    Use Modifiers, Create, Read, Update, Destroy;
+    use Modifiers, Create, Read, Update, Destroy;
 
     /**
      * SQLDriver constructor.

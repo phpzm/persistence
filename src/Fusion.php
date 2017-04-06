@@ -48,9 +48,14 @@ class Fusion
      * @param bool $exclusive
      * @param bool $rename
      */
-    public function __construct(string $collection, string $referenced, string $source, string $references,
-                                $exclusive = false, $rename = true)
-    {
+    public function __construct(
+        string $collection,
+        string $referenced,
+        string $source,
+        string $references,
+        $exclusive = false,
+        $rename = true
+    ) {
         $this->collection = $collection;
         $this->referenced = $referenced;
         $this->source = $source;
@@ -68,9 +73,14 @@ class Fusion
      * @param bool $rename
      * @return static
      */
-    public static function create(string $collection, string $referenced, string $source, string $references,
-                                  $exclusive = false, $rename = true)
-    {
+    public static function create(
+        string $collection,
+        string $referenced,
+        string $source,
+        string $references,
+        $exclusive = false,
+        $rename = true
+    ) {
         return new static($collection, $referenced, $source, $references, $exclusive, $rename);
     }
 

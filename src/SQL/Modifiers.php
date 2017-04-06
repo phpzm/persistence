@@ -3,7 +3,6 @@
 namespace Simples\Persistence\SQL;
 
 use Simples\Error\SimplesRunTimeError;
-use Simples\Kernel\Wrapper;
 use Simples\Persistence\Filter;
 use Simples\Persistence\FilterMap;
 use Simples\Persistence\Fusion;
@@ -102,6 +101,10 @@ trait Modifiers
             if (is_array($filter)) {
                 $parsing = $this->parseWhere($filter['filter'], $filter['separator']);
                 $parsed[] = "({$parsing})";
+                continue;
+            }
+            if (gettype($filter) === TYPE_STRING) {
+                $parsed[] = $filter;
                 continue;
             }
             /** @var Filter $filter */

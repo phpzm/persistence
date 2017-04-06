@@ -2,7 +2,6 @@
 
 namespace Simples\Persistence;
 
-use Simples\Error\SimplesRunTimeError;
 use Simples\Helper\JSON;
 use Simples\Kernel\App;
 

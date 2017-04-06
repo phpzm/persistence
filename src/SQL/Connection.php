@@ -18,11 +18,12 @@ abstract class Connection extends Persistence
     protected function connection()
     {
         if (!$this->resource) {
-            $this->resource = new PDO(
-                $this->dsn(), $this->settings['user'], $this->settings['password'], $this->settings['options']
-            );
+            $user = $this->settings['user'];
+            $password = $this->settings['password'];
+            $options = $this->settings['options'];
+            $this->resource = new PDO($this->dsn(), $user, $password, $options);
             $attributes = [
-                // PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_PERSISTENT => true,
             ];
             foreach ($attributes as $key => $value) {

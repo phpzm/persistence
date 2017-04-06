@@ -58,7 +58,8 @@ class MySQL extends Driver
             },
             function ($name) {
                 return "{$name} LIKE ?";
-            });
+            }
+        );
 
         FilterMap::add(
             $scope,
@@ -70,7 +71,8 @@ class MySQL extends Driver
             },
             function ($name) {
                 return "{$name} BETWEEN ? AND ?";
-            });
+            }
+        );
 
         FilterMap::add($scope, 'day', $getValue, function ($name) {
             return "DAY({$name}) = ?";

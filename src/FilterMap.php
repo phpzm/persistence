@@ -18,6 +18,7 @@ class FilterMap
      * @param string $rule
      * @param callable $value
      * @param callable $markup
+     * @return array
      */
     public static function add(string $scope, string $rule, callable $value, callable $markup)
     {
@@ -28,6 +29,7 @@ class FilterMap
             'getMarkup' => $markup,
             'getValue' => $value
         ];
+        return static::$rules;
     }
 
     /**

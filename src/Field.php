@@ -241,11 +241,17 @@ class Field
      * @param string $referenced
      * @param bool $nullable (false)
      * @param string $name (null)
+     * @param bool $fusion (true)
      * @return Field
      * @throws SimplesRunTimeError
      */
-    public function referencesTo(string $class, string $referenced, bool $nullable = false, string $name = null): Field
-    {
+    public function referencesTo(
+        string $class,
+        string $referenced,
+        bool $nullable = false,
+        string $name = null,
+        bool $fusion = true
+    ): Field {
         if (off($this->references, 'class')) {
             throw new SimplesRunTimeError("Relationship already defined to '{$this->references->class}'");
         }
@@ -256,7 +262,8 @@ class Field
             'name' => $name,
             'collection' => $this->getCollection(),
             'referenced' => $referenced,
-            'class' => $class
+            'class' => $class,
+            'fusion' => $fusion
         ];
         if ($nullable) {
             $this->option('default', null);
@@ -377,7 +384,7 @@ class Field
     public function primaryKey(): Field
     {
         $this->option('primaryKey', true);
-        return $this->integer()->update(false)->recover(false);
+        return $this->integer()->create(false)->update(false);
     }
 
     /**
@@ -385,7 +392,7 @@ class Field
      */
     public function hashKey(): Field
     {
-        return $this->optional(['unique'])->update(false);
+        return $this->string()->optional(['unique'])->update(false);
     }
 
     /**
@@ -464,4 +471,11 @@ class Field
         return $this->map;
     }
 
+    /**
+     * @return array
+     */
+    public function getValidators()
+    {
+        return $this->validators;
+    }
 }

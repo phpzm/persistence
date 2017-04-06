@@ -23,10 +23,9 @@ class SimplesPersistenceDataError extends SimplesPersistenceError
     {
         foreach ($details as $detail) {
             switch (off($detail, 1)) {
-                case 1452: {
+                case 1452:
                     $this->relationship(off($detail, 2));
                     break;
-                }
                 default:
                     $this->errors[] = $detail;
             }

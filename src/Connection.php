@@ -80,7 +80,7 @@ abstract class Connection
     {
         $log = ['command' => $command, 'parameters' => $parameters];
         $this->logs[] = $log;
-        if ($logging || App::log()) {
+        if ($logging || App::logging()) {
             Wrapper::log($log);
         }
         return $this;

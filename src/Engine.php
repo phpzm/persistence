@@ -20,7 +20,7 @@ use Simples\Kernel\App;
  *
  * @method $this log (bool $active)
  */
-class Engine
+abstract class Engine
 {
     /**
      * @var Driver
