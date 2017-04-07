@@ -30,15 +30,16 @@ trait Modifiers
         $command = [];
         foreach ($modifiers as $key => $modifier) {
             $value = off($clausules, $key);
-            if ($value) {
-                $key = ucfirst($key);
-                $key = "parse{$key}";
-                if (!method_exists($this, $key)) {
-                    throw new SimplesRunTimeError("Invalid modifier {$key}");
-                }
-                $value = $this->$key($value, $modifier['separator']);
-                $command[] = $modifier['instruction'] . ' ' . $value;
+            if (!$value) {
+                continue;
             }
+            $key = ucfirst($key);
+            $key = "parse{$key}";
+            if (!method_exists($this, $key)) {
+                throw new SimplesRunTimeError("Invalid modifier {$key}");
+            }
+            $value = $this->$key($value, $modifier['separator']);
+            $command[] = $modifier['instruction'] . ' ' . $value;
         }
         return $command;
     }

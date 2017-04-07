@@ -22,15 +22,23 @@ class SimplesPersistenceDataError extends SimplesPersistenceError
     protected function parse(array $details): array
     {
         foreach ($details as $detail) {
-            switch (off($detail, 1)) {
-                case 1452:
-                    $this->relationship(off($detail, 2));
-                    break;
-                default:
-                    $this->errors[] = $detail;
-            }
+            $this->parseDetail($detail);
         }
         return $this->errors;
+    }
+
+    /**
+     * @param mixed $detail
+     */
+    private function parseDetail($detail)
+    {
+        switch (off($detail, 1)) {
+            case 1452:
+                $this->relationship(off($detail, 2));
+                break;
+            default:
+                $this->errors[] = $detail;
+        }
     }
 
     /**
