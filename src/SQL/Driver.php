@@ -172,5 +172,17 @@ abstract class Driver extends Connection implements Persistence
         FilterMap::add($scope, 'blank', $getValue, function ($name) {
             return "({$name} IS NULL) OR (NOT {$name})";
         });
+
+        FilterMap::add($scope, 'less_than', $getValue, function ($name) {
+            return "{$name} < ?";
+        });
+
+        FilterMap::add($scope, 'greater_than', $getValue, function ($name) {
+            return "{$name} > ?";
+        });
+
+        FilterMap::add($scope, 'greater_equal_than', $getValue, function ($name) {
+            return "{$name} >= ?";
+        });
     }
 }

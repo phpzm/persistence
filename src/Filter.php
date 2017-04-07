@@ -63,6 +63,18 @@ class Filter
      * @var string
      */
     const RULE_BLANK = 'blank';
+    /**
+     * @var string
+     */
+    const RULE_LESS_THAN = 'less_than';
+    /**
+     * @var string
+     */
+    const RULE_GREATER_THAN = 'greater_than';
+    /**
+     * @var string
+     */
+    const RULE_GREATER_EQUAL_THAN = 'greater_equal_than';
 
     /**
      * Filter constructor.
