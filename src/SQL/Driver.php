@@ -77,7 +77,7 @@ abstract class Driver extends Connection implements Persistence
                 return (string)$this->connection()->lastInsertId();
             }
         } catch (Throwable $error) {
-            throw new SimplesPersistenceError([$sql, $parameters], [$error]);
+            throw new SimplesPersistenceError([$sql, $parameters, $statement->errorInfo()], [$error]);
         }
         throw new SimplesPersistenceDataError([$statement->errorInfo()], [$sql, $parameters]);
     }

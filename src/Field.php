@@ -7,48 +7,49 @@ use Simples\Persistence\Utils\Naming;
 use stdClass;
 
 /**
- * @method Field string($size = 255)
+ * @method Field string(int $size = 255)
  * @method Field text()
- * @method Field datetime($format = 'Y-m-d H:i:s')
- * @method Field date($format = 'Y-m-d')
- * @method Field integer($size = 10)
- * @method Field float($size = 10, $decimal = 4)
+ * @method Field datetime(string $format = 'Y-m-d H:i:s')
+ * @method Field date(string $format = 'Y-m-d')
+ * @method Field integer(int $size = 10)
+ * @method Field float(int $size = 10, int $decimal = 4)
  * @method Field file()
  * @method Field array()
  * @method Field boolean()
  *
- * @method Field collection($collection)
- * @method Field name($name)
- * @method Field type($type)
- * @method Field label($label)
- * @method Field alias($alias)
- * @method Field create($create)
- * @method Field read($read)
- * @method Field update($update)
- * @method Field recover($recover)
+ * @method Field collection(string $collection)
+ * @method Field name(string $name)
+ * @method Field type(string $type)
+ * @method Field label(string $label)
+ * @method Field alias(string $alias)
+ * @method Field create(bool $create)
+ * @method Field read(bool $read)
+ * @method Field update(bool $update)
+ * @method Field recover(bool $recover)
+ * @method Field mutator(callable $mutation)
  *
  * @method string getCollection()
- * @method Field setCollection($collection)
+ * @method Field setCollection(string $collection)
  * @method string getName()
- * @method Field setName($name)
+ * @method Field setName(string $name)
  * @method string getType()
- * @method Field setType($type)
+ * @method Field setType(string $type)
  * @method string getLabel()
- * @method Field setLabel($label)
+ * @method Field setLabel(string $label)
  * @method string getAlias()
- * @method Field setAlias($alias)
+ * @method Field setAlias(string $alias)
  * @method bool isPrimaryKey()
- * @method Field setPrimaryKey($primaryKey)
+ * @method Field setPrimaryKey(bool $primaryKey)
  * @method bool isCreate()
- * @method Field setCreate($create)
+ * @method Field setCreate(bool $create)
  * @method bool isRead()
- * @method Field setRead($read)
+ * @method Field setRead(bool $read)
  * @method bool isUpdate()
- * @method Field setUpdate($update)
+ * @method Field setUpdate(bool $update)
  * @method bool isRecover()
- * @method Field setRecover($recover)
+ * @method Field setRecover(bool $recover)
  *
- * @method Field default($default)
+ * @method Field default(mixed $default)
  *
  * Class Field
  * @package Simples\Model
@@ -128,7 +129,7 @@ class Field
     {
         $default = [
             'collection' => $collection, 'name' => $name, 'type' => $type ?? Field::TYPE_STRING,
-            'primaryKey' => false, 'label' => '', 'default' => '', 'alias' => '',
+            'primaryKey' => false, 'label' => '', 'default' => '', 'alias' => '', 'mutator' => null,
             'create' => true, 'read' => true, 'update' => true, 'recover' => true
         ];
         $this->options = array_merge($default, $options);
@@ -416,6 +417,14 @@ class Field
     }
 
     /**
+     * @return bool
+     */
+    public function isMutable(): bool
+    {
+        return is_callable($this->option('mutator'));
+    }
+
+    /**
      * @return array
      */
     public function getOptions(): array
@@ -453,14 +462,6 @@ class Field
     public function getFrom(): Field
     {
         return $this->from;
-    }
-
-    /**
-     * @return callable
-     */
-    public function getCalculated(): callable
-    {
-        return $this->calculated;
     }
 
     /**
