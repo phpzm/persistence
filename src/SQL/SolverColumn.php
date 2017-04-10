@@ -37,17 +37,32 @@ class SolverColumn
             $collection = '__' . strtoupper($column->getFrom()->getName()) . '__';
         }
         $name = $column->getName();
+        $alias = off($column->getOptions(), 'alias');
 
-        switch ($column->getType()) {
-            case Field::AGGREGATOR_COUNT:
-                $field = "COUNT(`{$collection}`.`{$name}`)";
-                /** @noinspection PhpAssignmentInConditionInspection */
-                if ($alias = off($column->getOptions(), 'alias')) {
-                    $field = "{$field} AS {$alias}";
-                }
-                break;
-            default:
-                $field = "`{$collection}`.`{$name}`";
+        $solvers = [
+            Field::AGGREGATOR_COUNT => function ($collection, $name) {
+                return "COUNT(`{$collection}`.`{$name}`)";
+            },
+            Field::AGGREGATOR_SUM => function ($collection, $name) {
+                return "SUM(`{$collection}`.`{$name}`)";
+            },
+            Field::AGGREGATOR_MAX => function ($collection, $name) {
+                return "MAX(`{$collection}`.`{$name}`)";
+            },
+            Field::AGGREGATOR_MIN => function ($collection, $name) {
+                return "MIN(`{$collection}`.`{$name}`)";
+            },
+        ];
+        $callable = function ($collection, $name) {
+            return "`{$collection}`.`{$name}`";
+        };
+        if (isset($solvers[$column->getType()])) {
+            $callable = $solvers[$column->getType()];
+        }
+
+        $field = $callable($collection, $name);
+        if ($alias) {
+            $field = "{$field} AS `{$alias}`";
         }
         return $field;
     }

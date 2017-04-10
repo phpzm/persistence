@@ -3,8 +3,6 @@
 namespace Simples\Persistence;
 
 use Simples\Error\SimplesRunTimeError;
-use Simples\Persistence\Utils\Naming;
-use stdClass;
 
 /**
  * @method Field string(int $size = 255)
@@ -54,13 +52,8 @@ use stdClass;
  * Class Field
  * @package Simples\Model
  */
-class Field
+class Field extends FieldAbstract
 {
-    /**
-     * @trait Naming
-     */
-    use Naming;
-
     /**
      * @var string
      */
@@ -71,52 +64,7 @@ class Field
     /**
      * @var string
      */
-    const AGGREGATOR_COUNT = 'count';
-
-    /**
-     * @var array
-     */
-    private $supported = ['string', 'text', 'datetime', 'date', 'integer', 'float', 'file', 'array', 'boolean'];
-
-    /**
-     * @var array
-     */
-    private $options = [];
-
-    /**
-     * @var array
-     */
-    protected $validators;
-
-    /**
-     * @var array
-     */
-    protected $enum;
-
-    /**
-     * @var array
-     */
-    protected $referenced;
-
-    /**
-     * @var stdClass
-     */
-    protected $references;
-
-    /**
-     * @var Field
-     */
-    protected $from;
-
-    /**
-     * @var callable
-     */
-    protected $calculated;
-
-    /**
-     * @var callable
-     */
-    protected $map;
+    const AGGREGATOR_COUNT = 'count', AGGREGATOR_SUM = 'sum', AGGREGATOR_MAX = 'max', AGGREGATOR_MIN = 'min';
 
     /**
      * Field constructor.
@@ -128,9 +76,18 @@ class Field
     public function __construct(string $collection, string $name, string $type = null, array $options = [])
     {
         $default = [
-            'collection' => $collection, 'name' => $name, 'type' => $type ?? Field::TYPE_STRING,
-            'primaryKey' => false, 'label' => '', 'default' => '', 'alias' => '', 'mutator' => null,
-            'create' => true, 'read' => true, 'update' => true, 'recover' => true
+            'collection' => $collection,
+            'name' => $name,
+            'type' => $type ?? Field::TYPE_STRING,
+            'primaryKey' => false,
+            'label' => '',
+            'default' => '',
+            'alias' => '',
+            'mutator' => null,
+            'create' => true,
+            'read' => true,
+            'update' => true,
+            'recover' => true
         ];
         $this->options = array_merge($default, $options);
 
@@ -149,33 +106,15 @@ class Field
     }
 
     /**
-     * @param $name
-     * @param $arguments
-     * @return mixed
-     * @throws SimplesRunTimeError
+     * @param string $collection
+     * @param string $name
+     * @param string $type (null)
+     * @param array $options ([])
+     * @return Field
      */
-    public function __call($name, $arguments)
+    public static function make(string $collection, string $name, string $type = null, array $options = []): Field
     {
-        if (in_array($name, array_keys($this->options), true) && isset($arguments[0])) {
-            $this->options[$name] = $arguments[0];
-            return $this;
-        }
-        $parseName = $this->parseName($name);
-        if ($parseName) {
-            if (isset($arguments[0])) {
-                $this->option($parseName, $arguments[0]);
-                return $this;
-            }
-            return $this->option($parseName);
-        }
-        if (in_array($name, $this->supported, true)) {
-            $this->option('type', $name);
-            if (!$this->validators) {
-                $this->optional();
-            }
-            return $this;
-        }
-        throw new SimplesRunTimeError("Type '{$name}' not supported");
+        return new static($collection, $name, $type, $options);
     }
 
     /**
@@ -189,33 +128,6 @@ class Field
             $this->options[$key] = $value;
         }
         return off($this->options, $key);
-    }
-
-    /**
-     *
-     * @param string|array $rule
-     * @param array|string $options ('')
-     * @param bool $clear
-     * @return Field
-     */
-    public function validator($rule, $options = null, bool $clear = false): Field
-    {
-        if ($clear) {
-            $this->validators = [];
-        }
-        if (!is_array($rule)) {
-            $this->validators[$rule] = $options;
-            return $this;
-        }
-        foreach ($rule as $key => $value) {
-            $name = $key;
-            if (is_numeric($key)) {
-                $name = $value;
-                $value = '';
-            }
-            $this->validators[$name] = $value;
-        }
-        return $this;
     }
 
     /**
@@ -333,16 +245,6 @@ class Field
     }
 
     /**
-     * @param $record
-     * @return mixed
-     */
-    public function calculate($record)
-    {
-        $callable = $this->calculated;
-        return $callable($record);
-    }
-
-    /**
      * @param Field $reference
      * @return Field
      */
@@ -353,17 +255,9 @@ class Field
     }
 
     /**
-     * @return bool
-     */
-    public function hasFrom(): bool
-    {
-        return !!$this->from;
-    }
-
-    /**
      * @return Field
      */
-    public function readonly()
+    public function readonly(): Field
     {
         $this->option('readonly', true);
         return $this->create(false)->read(false)->update(false);
@@ -397,86 +291,29 @@ class Field
     }
 
     /**
-     * @return mixed
-     */
-    public function getDefault()
-    {
-        if (is_callable($this->option('default'))) {
-            $callable = $this->option('default');
-            return $callable();
-        }
-        return $this->option('default');
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCalculated(): bool
-    {
-        return is_callable($this->calculated);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isMutable(): bool
-    {
-        return is_callable($this->option('mutator'));
-    }
-
-    /**
-     * @return array
-     */
-    public function getOptions(): array
-    {
-        return $this->options;
-    }
-
-    /**
-     * @return array
-     */
-    public function getEnum(): array
-    {
-        return $this->enum;
-    }
-
-    /**
-     * @return array
-     */
-    public function getReferenced(): array
-    {
-        return $this->referenced;
-    }
-
-    /**
-     * @return stdClass
-     */
-    public function getReferences(): stdClass
-    {
-        return $this->references;
-    }
-
-    /**
+     *
+     * @param string|array $rule
+     * @param array|string $options ('')
+     * @param bool $clear
      * @return Field
      */
-    public function getFrom(): Field
+    public function validator($rule, $options = null, bool $clear = false): Field
     {
-        return $this->from;
-    }
-
-    /**
-     * @return callable
-     */
-    public function getMap(): callable
-    {
-        return $this->map;
-    }
-
-    /**
-     * @return array
-     */
-    public function getValidators()
-    {
-        return $this->validators;
+        if ($clear) {
+            $this->validators = [];
+        }
+        if (!is_array($rule)) {
+            $this->validators[$rule] = $options;
+            return $this;
+        }
+        foreach ($rule as $key => $value) {
+            $name = $key;
+            if (is_numeric($key)) {
+                $name = $value;
+                $value = '';
+            }
+            $this->validators[$name] = $value;
+        }
+        return $this;
     }
 }

@@ -6,7 +6,7 @@ namespace Simples\Persistence;
  * Class FilterMap
  * @package Simples\Persistence
  */
-class FilterMap
+abstract class FilterMap
 {
     /**
      * @var array
