@@ -66,7 +66,7 @@ abstract class Driver extends Connection implements Persistence
      * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
-    final public function create(array $clausules, array $values): string
+    public function create(array $clausules, array $values): string
     {
         $sql = $this->getInsert($clausules);
         $parameters = array_values($values);
@@ -89,7 +89,7 @@ abstract class Driver extends Connection implements Persistence
      * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
-    final public function read(array $clausules, array $values = []): array
+    public function read(array $clausules, array $values = []): array
     {
         $sql = $this->getSelect($clausules);
         $parameters = array_values($values);
@@ -113,7 +113,7 @@ abstract class Driver extends Connection implements Persistence
      * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
-    final public function update(array $clausules, array $values, array $filters): int
+    public function update(array $clausules, array $values, array $filters): int
     {
         $sql = $this->getUpdate($clausules);
         $parameters = array_merge(array_values($values), array_values($filters));
@@ -136,7 +136,7 @@ abstract class Driver extends Connection implements Persistence
      * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
-    final public function destroy(array $clausules, array $values): int
+    public function destroy(array $clausules, array $values): int
     {
         $sql = $this->getDelete($clausules);
         $parameters = array_values($values);
@@ -150,6 +150,49 @@ abstract class Driver extends Connection implements Persistence
             throw new SimplesPersistenceError([$sql, $parameters], [$error]);
         }
         throw new SimplesPersistenceDataError([$statement->errorInfo()], [$sql, $parameters]);
+    }
+
+    /**
+     * @param string $instruction
+     * @param array $values
+     * @return int
+     * @throws SimplesPersistenceDataError
+     * @throws SimplesPersistenceError
+     */
+    public function run(string $instruction, array $values = []): int
+    {
+        $this->addLog($instruction, $values);
+        $statement = $this->statement($instruction);
+        try {
+            if ($statement && $statement->execute($values)) {
+                return $statement->rowCount();
+            }
+        } catch (Throwable $error) {
+            throw new SimplesPersistenceError([$instruction, $values], [$error]);
+        }
+        throw new SimplesPersistenceDataError([$statement->errorInfo()], [$instruction, $values]);
+    }
+
+
+    /**
+     * @param string $instruction
+     * @param array $values
+     * @return array
+     * @throws SimplesPersistenceDataError
+     * @throws SimplesPersistenceError
+     */
+    public function query(string $instruction, array $values = []): array
+    {
+        $this->addLog($instruction, $values);
+        $statement = $this->statement($instruction);
+        try {
+            if ($statement && $statement->execute($values)) {
+                return $statement->fetchAll(PDO::FETCH_ASSOC);
+            }
+        } catch (Throwable $error) {
+            throw new SimplesPersistenceError([$instruction, $values], [$error]);
+        }
+        throw new SimplesPersistenceDataError([$statement->errorInfo()], [$instruction, $values]);
     }
 
     /**
@@ -183,6 +226,15 @@ abstract class Driver extends Connection implements Persistence
 
         FilterMap::add($scope, 'greater_equal_than', $getValue, function ($name) {
             return "{$name} >= ?";
+        });
+
+        FilterMap::add($scope, 'in', function ($value) {
+            return explode('|', $value);
+        }, function ($name, $value) {
+            $keys = implode(',', array_map(function () {
+                return '?';
+            }, explode('|', $value)));
+            return "{$name} IN ({$keys})";
         });
     }
 }

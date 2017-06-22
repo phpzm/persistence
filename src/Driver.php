@@ -56,4 +56,18 @@ interface Driver
      * @return int
      */
     public function destroy(array $clausules, array $values): int;
+
+    /**
+     * @param string $instruction
+     * @param array $values
+     * @return int
+     */
+    public function run(string $instruction, array $values = []): int;
+
+    /**
+     * @param string $instruction
+     * @param array $values
+     * @return array
+     */
+    public function query(string $instruction, array $values = []): array;
 }

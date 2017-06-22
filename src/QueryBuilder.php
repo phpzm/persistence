@@ -21,4 +21,40 @@ class QueryBuilder extends Engine
     {
         parent::__construct($this->connection);
     }
+
+    /**
+     * @return bool
+     */
+    public function commit()
+    {
+        return $this->driver()->commit();
+    }
+
+    /**
+     * @return bool
+     */
+    public function rollback()
+    {
+        return $this->driver()->rollback();
+    }
+
+    /**
+     * @param string $sql
+     * @param array $values
+     * @return mixed
+     */
+    public function run(string $sql, array $values)
+    {
+        return $this->driver()->run($sql, $values);
+    }
+
+    /**
+     * @param string $sql
+     * @param array $values
+     * @return mixed
+     */
+    public function query(string $sql, array $values)
+    {
+        return $this->driver()->query($sql, $values);
+    }
 }
