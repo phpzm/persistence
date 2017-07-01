@@ -46,35 +46,7 @@ class Filter
     /**
      * @var string
      */
-    const RULE_BETWEEN = 'between';
-    /**
-     * @var string
-     */
-    const RULE_DAY = 'day';
-    /**
-     * @var string
-     */
-    const RULE_MONTH = 'month';
-    /**
-     * @var string
-     */
-    const RULE_YEAR = 'year';
-    /**
-     * @var string
-     */
     const RULE_BLANK = 'blank';
-    /**
-     * @var string
-     */
-    const RULE_LESS_THAN = 'less_than';
-    /**
-     * @var string
-     */
-    const RULE_GREATER_THAN = 'greater_than';
-    /**
-     * @var string
-     */
-    const RULE_GREATER_EQUAL_THAN = 'greater_equal_than';
 
     /**
      * Filter constructor.
