@@ -2,6 +2,7 @@
 
 namespace Simples\Persistence;
 
+use Simples\Data\Error\SimplesValidationError;
 use Simples\Error\SimplesRunTimeError;
 use Simples\Kernel\App;
 
@@ -86,7 +87,7 @@ abstract class Engine
      * @param array $values
      * @return string
      */
-    final public function register($values): string
+    public function register($values): string
     {
         return $this->driver()->create($this->clausules, $values);
     }
@@ -95,7 +96,7 @@ abstract class Engine
      * @param $values
      * @return array
      */
-    final public function recover($values = []): array
+    public function recover($values = []): array
     {
         return $this->driver()->read($this->clausules, $values);
     }
@@ -105,7 +106,7 @@ abstract class Engine
      * @param $filters
      * @return int
      */
-    final public function change($values, $filters = []): int
+    public function change($values, $filters = []): int
     {
         return $this->driver()->update($this->clausules, $values, $filters);
     }
@@ -114,7 +115,7 @@ abstract class Engine
      * @param $filters
      * @return int
      */
-    final public function remove($filters): int
+    public function remove($filters): int
     {
         return $this->driver()->destroy($this->clausules, $filters);
     }
@@ -149,5 +150,28 @@ abstract class Engine
     public function reset()
     {
         $this->clausules = [];
+    }
+
+    /**
+     * @param string $name must to be a defined clause.
+     * @param array $value
+     * @return bool
+     * @throws SimplesValidationError
+     */
+    public function merge(string $name, array $value)
+    {
+        if(isset($this->clausules[$name])){
+            $this->clausules[$name] = array_merge($this->clausules[$name], $value);
+            return true;
+        }
+        throw new SimplesValidationError([$name, $value], 'This clause not defined yet, you can add something if this clause exist');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSource()
+    {
+        return $this->clausules['source'] ?: null;
     }
 }
