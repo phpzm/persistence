@@ -160,18 +160,22 @@ abstract class Engine
      */
     public function merge(string $name, array $value)
     {
-        if(isset($this->clausules[$name])){
+        if (isset($this->clausules[$name])) {
             $this->clausules[$name] = array_merge($this->clausules[$name], $value);
             return true;
         }
-        throw new SimplesValidationError([$name, $value], 'This clause not defined yet, you can add something if this clause exist');
+        throw new SimplesValidationError(
+            [$name, $value],
+            'This clause not defined yet, you can add something if this clause exist'
+        );
     }
 
     /**
-     * @return mixed
+     * @param string $clausule
+     * @return null
      */
-    public function getSource()
+    public function clausule(string $clausule)
     {
-        return $this->clausules['source'] ?: null;
+        return $this->clausules[$clausule] ?: null;
     }
 }
