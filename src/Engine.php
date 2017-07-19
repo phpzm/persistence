@@ -51,6 +51,8 @@ abstract class Engine
     }
 
     /**
+     * Allow associate values to properties in clausules array
+     *
      * @param $name
      * @param $arguments
      * @return $this
