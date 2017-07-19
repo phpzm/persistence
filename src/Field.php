@@ -138,10 +138,12 @@ class Field extends FieldAbstract
      */
     public function referencedBy(string $class, string $target, string $name = null): Field
     {
+        $pivot = !is_null($name);
         if (!$name) {
             $name = get_class_short_name($class);
         }
         $this->referenced[$target] = [
+            'pivot' => $pivot,
             'name' => $name,
             'class' => $class
         ];

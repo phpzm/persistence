@@ -57,7 +57,7 @@ abstract class Engine
      */
     public function __call($name, $arguments)
     {
-        $clausule = $arguments[0];
+        $clausule = isset($arguments[0]) ? $arguments[0] : null;
         if (count($arguments) > 1) {
             $clausule = $arguments;
         }
