@@ -20,7 +20,7 @@ trait Read
 
         $command = [];
         $command[] = 'SELECT';
-        $command[] = $this->parseColumns($columns);
+        $command[] = $this->parseColumns($table, $columns);
         $command[] = 'FROM';
         $command[] = $table;
         if ($join) {
