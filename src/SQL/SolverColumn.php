@@ -3,6 +3,7 @@
 namespace Simples\Persistence\SQL;
 
 use Simples\Persistence\Field;
+use Simples\Persistence\SQL\Error\SimplesUnsupportedField;
 
 /**
  * Class SolverColumn
@@ -11,19 +12,27 @@ use Simples\Persistence\Field;
 class SolverColumn
 {
     /**
+     * @param string $table
      * @param string|Field $column
      * @return string
+     * @throws SimplesUnsupportedField
      */
-    public function render($column): string
+    public function render($table, $column): string
     {
-        $field = '';
         if (gettype($column) === TYPE_STRING) {
-            $field = "`{$column}`";
+            return "`{$table}`.`{$column}`";
         }
         if ($column instanceof Field) {
-            $field = $this->parseColumnField($column);
+            return $this->parseColumnField($column);
         }
-        return $field;
+        if (gettype($column) === TYPE_ARRAY) {
+            $table = (string)off($column, 0);
+            $column = (string)off($column, 1);
+            if ($table && $column) {
+                return "`{$table}`.`{$column}`";
+            }
+        }
+        throw new SimplesUnsupportedField();
     }
 
     /**

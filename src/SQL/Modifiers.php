@@ -45,11 +45,12 @@ trait Modifiers
     }
 
     /**
-     * @param $columns
+     * @param string $table
+     * @param array|string $columns
      * @return string
      * @throws SimplesRunTimeError
      */
-    protected function parseColumns($columns): string
+    protected function parseColumns($table, $columns): string
     {
         $type = gettype($columns);
         if ($type === TYPE_STRING) {
@@ -59,7 +60,7 @@ trait Modifiers
             $solver = new SolverColumn();
             $fields = [];
             foreach ($columns as $column) {
-                $fields[] = $solver->render($column);
+                $fields[] = $solver->render($table, $column);
             }
             return implode(__COMMA__, $fields);
         }
