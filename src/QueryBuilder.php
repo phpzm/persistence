@@ -2,6 +2,9 @@
 
 namespace Simples\Persistence;
 
+use Simples\Error\SimplesRunTimeError;
+use Simples\Kernel\Container;
+
 /**
  * Class QueryBuilder
  * @package Simples\Persistence
@@ -23,7 +26,17 @@ class QueryBuilder extends Engine
     }
 
     /**
+     * @return $this
+     * @throws SimplesRunTimeError
+     */
+    public static function instance()
+    {
+        return Container::instance()->make(static::class);
+    }
+
+    /**
      * @return bool
+     * @throws SimplesRunTimeError
      */
     public function commit()
     {
@@ -32,6 +45,7 @@ class QueryBuilder extends Engine
 
     /**
      * @return bool
+     * @throws SimplesRunTimeError
      */
     public function rollback()
     {
@@ -42,6 +56,7 @@ class QueryBuilder extends Engine
      * @param string $sql
      * @param array $values
      * @return mixed
+     * @throws SimplesRunTimeError
      */
     public function run(string $sql, array $values)
     {
@@ -52,6 +67,7 @@ class QueryBuilder extends Engine
      * @param string $sql
      * @param array $values
      * @return mixed
+     * @throws SimplesRunTimeError
      */
     public function query(string $sql, array $values)
     {
