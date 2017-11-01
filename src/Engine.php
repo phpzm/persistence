@@ -31,7 +31,7 @@ abstract class Engine
     /**
      * @var array
      */
-    private $clausules = [];
+    private $clauses = [];
 
     /**
      * @var array|mixed
@@ -65,9 +65,9 @@ abstract class Engine
         }
         $name = strtolower($name);
 
-        $this->clausules[$name] = $clausule;
+        $this->clauses[$name] = $clausule;
         if (is_null($clausule)) {
-            unset($this->clausules[$name]);
+            unset($this->clauses[$name]);
         }
 
         return $this;
@@ -91,7 +91,7 @@ abstract class Engine
      */
     public function register($values): string
     {
-        return $this->driver()->create($this->clausules, $values);
+        return $this->driver()->create($this->clauses, $values);
     }
 
     /**
@@ -100,7 +100,7 @@ abstract class Engine
      */
     public function recover($values = []): array
     {
-        return $this->driver()->read($this->clausules, $values);
+        return $this->driver()->read($this->clauses, $values);
     }
 
     /**
@@ -110,7 +110,7 @@ abstract class Engine
      */
     public function change($values, $filters = []): int
     {
-        return $this->driver()->update($this->clausules, $values, $filters);
+        return $this->driver()->update($this->clauses, $values, $filters);
     }
 
     /**
@@ -119,7 +119,7 @@ abstract class Engine
      */
     public function remove($filters): int
     {
-        return $this->driver()->destroy($this->clausules, $filters);
+        return $this->driver()->destroy($this->clauses, $filters);
     }
 
     /**
@@ -133,9 +133,9 @@ abstract class Engine
     /**
      * @return array
      */
-    public function getClausules(): array
+    public function getClauses(): array
     {
-        return $this->clausules;
+        return $this->clauses;
     }
 
     /**
@@ -151,7 +151,7 @@ abstract class Engine
      */
     public function reset()
     {
-        $this->clausules = [];
+        $this->clauses = [];
     }
 
     /**
@@ -162,8 +162,8 @@ abstract class Engine
      */
     public function merge(string $name, array $value)
     {
-        if (isset($this->clausules[$name])) {
-            $this->clausules[$name] = array_merge($this->clausules[$name], $value);
+        if (isset($this->clauses[$name])) {
+            $this->clauses[$name] = array_merge($this->clauses[$name], $value);
             return true;
         }
         throw new SimplesValidationError(
@@ -176,8 +176,8 @@ abstract class Engine
      * @param string $clausule
      * @return null
      */
-    public function clausule(string $clausule)
+    public function clause(string $clausule)
     {
-        return $this->clausules[$clausule] ?: null;
+        return $this->clauses[$clausule] ?: null;
     }
 }

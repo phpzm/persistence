@@ -46,6 +46,8 @@ use Simples\Error\SimplesRunTimeError;
  * @method Field setUpdate(bool $update)
  * @method bool isRecover()
  * @method Field setRecover(bool $recover)
+ * @method Field setMigratory(bool $migratory)
+ * @method bool isMigratory()
  *
  * @method Field default(mixed $default)
  *
@@ -87,7 +89,8 @@ class Field extends FieldAbstract
             'create' => true,
             'read' => true,
             'update' => true,
-            'recover' => true
+            'recover' => true,
+            'migratory' => true
         ];
         $this->options = array_merge($default, $options);
 

@@ -2,6 +2,7 @@
 
 namespace Simples\Persistence\SQL;
 
+use function is_callable;
 use PDO;
 use PDOStatement;
 use Simples\Persistence\Connection as Persistence;
@@ -28,6 +29,9 @@ abstract class Connection extends Persistence
             ];
             foreach ($attributes as $key => $value) {
                 $this->resource->setAttribute($key, $value);
+            }
+            if (isset($this->settings['bootstrap']) && is_callable($this->settings['bootstrap'])) {
+                $this->settings['bootstrap']($this->resource);
             }
         }
         return $this->resource;

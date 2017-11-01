@@ -86,7 +86,7 @@ class MySQL extends Driver
             return "YEAR({$name}) = ?";
         });
 
-        return parent::filters($scope);
+        parent::filters($scope);
     }
 
     /**
