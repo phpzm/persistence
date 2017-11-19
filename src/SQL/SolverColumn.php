@@ -46,7 +46,8 @@ class SolverColumn
             $collection = '__' . strtoupper($column->getFrom()->getName()) . '__';
         }
         $name = $column->getName();
-        $alias = off($column->getOptions(), 'alias');
+        $options = $column->getOptions();
+        $alias = off($options, 'alias');
 
         $solvers = [
             Field::AGGREGATOR_COUNT => function ($collection, $name) {
@@ -67,6 +68,12 @@ class SolverColumn
         };
         if (isset($solvers[$column->getType()])) {
             $callable = $solvers[$column->getType()];
+        }
+        if (isset($options['expression']) && $options['expression']) {
+            $alias = $name;
+            $callable = function () use ($options) {
+                return "({$options['expression']})";
+            };
         }
 
         $field = $callable($collection, $name);

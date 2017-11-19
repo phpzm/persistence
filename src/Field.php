@@ -25,6 +25,7 @@ use Simples\Error\SimplesRunTimeError;
  * @method Field update(bool $update)
  * @method Field recover(bool $recover)
  * @method Field mutator(callable $mutation)
+ * @method Field expression(string $expression)
  *
  * @method string getCollection()
  * @method Field setCollection(string $collection)
@@ -90,7 +91,8 @@ class Field extends FieldAbstract
             'read' => true,
             'update' => true,
             'recover' => true,
-            'migratory' => true
+            'migratory' => true,
+            'expression' => ''
         ];
         $this->options = array_merge($default, $options);
 
