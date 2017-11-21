@@ -197,4 +197,13 @@ class Filter
     {
         return $this->not;
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return "{$this->getName()}~>{$this->getRule()}";
+    }
+
 }
