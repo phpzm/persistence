@@ -39,6 +39,9 @@ trait Modifiers
                 throw new SimplesRunTimeError("Invalid modifier {$key}");
             }
             $value = $this->$key($value, $modifier['separator']);
+            if (!$value) {
+                continue;
+            }
             $command[] = $modifier['instruction'] . ' ' . $value;
         }
         return $command;
