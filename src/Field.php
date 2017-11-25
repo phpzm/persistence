@@ -171,7 +171,9 @@ class Field extends FieldAbstract
         bool $fusion = true
     ): Field {
         if (off($this->references, 'class')) {
-            throw new SimplesRunTimeError("Relationship already defined to '{$this->references->class}'");
+            throw new SimplesRunTimeError(
+                "Relationship already defined to `{$this->references->class}` by `{$this->references->referenced}`"
+            );
         }
         if (!$name) {
             $name = get_class_short_name($class);
