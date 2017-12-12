@@ -10,7 +10,7 @@
   ],
   "homepage": "https://github.com/phpzm/persistence",
   "license": "MIT",
-  "version": "1.13.7",
+  "version": "1.13.8",
   "type": "package",
   "authors": [
     {
@@ -24,7 +24,7 @@
   ],
   "require": {
     "php": ">=7.0",
-    "phpzm/kernel": "^1.11.7"
+    "phpzm/kernel": "^1.11.8"
   },
   "autoload": {
     "psr-4": {
