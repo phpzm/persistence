@@ -26,13 +26,20 @@ class SolverColumn
             return $this->parseColumnField($column);
         }
         if (gettype($column) === TYPE_ARRAY) {
-            $table = (string)off($column, 0);
-            $column = (string)off($column, 1);
-            if ($table && $column) {
-                return "`{$table}`.`{$column}`";
+            $source = (string)off($column, 0);
+            $field = (string)off($column, 1);
+            $as = (string)off($column, 2);
+            if ($source && $field && $as) {
+                return "`{$source}`.`{$field}` AS `{$as}`";
+            }
+            if ($source && $field) {
+                return "`{$source}`.`{$field}`";
+            }
+            if ($field && $as) {
+                return "{$field} AS `{$as}`";
             }
         }
-        throw new SimplesUnsupportedField();
+        throw new SimplesUnsupportedField(['table' => $table, 'column' => $column]);
     }
 
     /**
