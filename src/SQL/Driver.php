@@ -11,6 +11,7 @@ use Simples\Persistence\SQL\Operations\Create;
 use Simples\Persistence\SQL\Operations\Destroy;
 use Simples\Persistence\SQL\Operations\Read;
 use Simples\Persistence\SQL\Operations\Update;
+use stdClass;
 use Throwable;
 
 /**
@@ -96,8 +97,13 @@ abstract class Driver extends Connection implements Persistence
         $this->addLog($sql, $parameters, off($clausules, 'log', false));
         $statement = $this->statement($sql);
         try {
+            $fetch = off($clausules, 'fetch', PDO::FETCH_ASSOC);
+            if ($fetch === stdClass::class) {
+                $fetch = PDO::FETCH_OBJ;
+            }
+
             if ($statement && $statement->execute($parameters)) {
-                return $statement->fetchAll(PDO::FETCH_ASSOC);
+                return $statement->fetchAll($fetch);
             }
         } catch (Throwable $error) {
             throw new SimplesPersistenceError([$sql, $parameters], [$error]);
