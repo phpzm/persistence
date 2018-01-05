@@ -6,6 +6,7 @@ use Simples\Error\SimplesRunTimeError;
 use Simples\Persistence\Filter;
 use Simples\Persistence\FilterMap;
 use Simples\Persistence\Fusion;
+use function is_string;
 
 /**
  * Class Modifiers
@@ -79,6 +80,10 @@ trait Modifiers
         $join = [];
         /** @var Fusion $resource */
         foreach ($resources as $resource) {
+            if (is_string($resource)) {
+                $join[] = $resource;
+                continue;
+            }
             $type = $resource->isExclusive() ? 'INNER' : 'LEFT';
             $collection = $resource->getCollection();
             $left = "`{$resource->getSource()}`.`{$resource->getReferences()}`";
