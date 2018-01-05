@@ -12,12 +12,13 @@ use Simples\Kernel\App;
  *
  * @method $this source (string $source)
  * @method $this relation (array $relations)
- * @method $this fields (array|string $fields)
+ * @method $this fields (array | string $fields)
  * @method $this where (array $filter)
  * @method $this order (array $order)
  * @method $this group (array $group)
  * @method $this having (array $having)
  * @method $this limit (array $limit)
+ * @method $this fetch (string $fetch)
  *
  * @method $this log (bool $active)
  */
@@ -87,39 +88,63 @@ abstract class Engine
 
     /**
      * @param array $values
+     * @param bool $reset
      * @return string
+     * @throws SimplesRunTimeError
      */
-    public function register($values): string
+    public function register($values, $reset = true): string
     {
-        return $this->driver()->create($this->clauses, $values);
+        $clauses = $this->clauses;
+        if ($reset) {
+            $this->reset();
+        }
+        return $this->driver()->create($clauses, $values);
     }
 
     /**
      * @param $values
+     * @param bool $reset
      * @return array
+     * @throws SimplesRunTimeError
      */
-    public function recover($values = []): array
+    public function recover($values = [], $reset = true): array
     {
-        return $this->driver()->read($this->clauses, $values);
+        $clauses = $this->clauses;
+        if ($reset) {
+            $this->reset();
+        }
+        return $this->driver()->read($clauses, $values);
     }
 
     /**
      * @param $values
      * @param $filters
+     * @param bool $reset
      * @return int
+     * @throws SimplesRunTimeError
      */
-    public function change($values, $filters = []): int
+    public function change($values, $filters = [], $reset = true): int
     {
-        return $this->driver()->update($this->clauses, $values, $filters);
+        $clauses = $this->clauses;
+        if ($reset) {
+            $this->reset();
+        }
+        return $this->driver()->update($clauses, $values, $filters);
     }
 
     /**
      * @param $filters
+     * @param bool $reset
      * @return int
+     * @throws SimplesRunTimeError
      */
-    public function remove($filters): int
+    public function remove($filters, $reset = true): int
     {
-        return $this->driver()->destroy($this->clauses, $filters);
+        $clauses = $this->clauses;
+        if ($reset) {
+            $this->reset();
+        }
+        return $this->driver()->destroy($clauses, $filters);
     }
 
     /**
