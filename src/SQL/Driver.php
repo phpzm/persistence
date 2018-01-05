@@ -2,6 +2,7 @@
 
 namespace Simples\Persistence\SQL;
 
+use function is_array;
 use PDO;
 use Simples\Persistence\Driver as Persistence;
 use Simples\Persistence\Error\SimplesPersistenceError;
@@ -101,8 +102,11 @@ abstract class Driver extends Connection implements Persistence
             if ($fetch === stdClass::class) {
                 $fetch = PDO::FETCH_OBJ;
             }
-
             if ($statement && $statement->execute($parameters)) {
+                // [PDO::FETCH_CLASS, 'person']
+                if (is_array($fetch)) {
+                    return $statement->fetchAll(off($fetch, 0), off($fetch, 1));
+                }
                 return $statement->fetchAll($fetch);
             }
         } catch (Throwable $error) {
