@@ -2,8 +2,8 @@
 
 namespace Simples\Persistence\SQL;
 
-use function is_array;
 use PDO;
+use Simples\Error\SimplesRunTimeError;
 use Simples\Persistence\Driver as Persistence;
 use Simples\Persistence\Error\SimplesPersistenceError;
 use Simples\Persistence\FilterMap;
@@ -14,6 +14,8 @@ use Simples\Persistence\SQL\Operations\Read;
 use Simples\Persistence\SQL\Operations\Update;
 use stdClass;
 use Throwable;
+use function is_array;
+use function runnable;
 
 /**
  * Class SQLDriver
@@ -22,9 +24,9 @@ use Throwable;
 abstract class Driver extends Connection implements Persistence
 {
     /**
-     * @trait Operations
+     * @trait Modifiers, Create, Read, Update, Destroy, Filters
      */
-    use Modifiers, Create, Read, Update, Destroy;
+    use Modifiers, Create, Read, Update, Destroy, Filters;
 
     /**
      * SQLDriver constructor.
@@ -73,8 +75,9 @@ abstract class Driver extends Connection implements Persistence
         $sql = $this->getInsert($clausules);
         $parameters = array_values($values);
         $this->addLog($sql, $parameters, off($clausules, 'log', false));
-        $statement = $this->statement($sql);
         try {
+            $statement = $this->statement($sql);
+
             if ($statement && $statement->execute($parameters)) {
                 return (string)$this->connection()->lastInsertId();
             }
@@ -88,7 +91,6 @@ abstract class Driver extends Connection implements Persistence
      * @param array $clausules
      * @param array $values
      * @return array
-     * @throws SimplesPersistenceDataError
      * @throws SimplesPersistenceError
      */
     public function read(array $clausules, array $values = []): array
@@ -96,23 +98,28 @@ abstract class Driver extends Connection implements Persistence
         $sql = $this->getSelect($clausules);
         $parameters = array_values($values);
         $this->addLog($sql, $parameters, off($clausules, 'log', false));
-        $statement = $this->statement($sql);
         try {
+            $statement = $this->statement($sql);
+
             $fetch = off($clausules, 'fetch', PDO::FETCH_ASSOC);
             if ($fetch === stdClass::class) {
                 $fetch = PDO::FETCH_OBJ;
             }
-            if ($statement && $statement->execute($parameters)) {
-                // [PDO::FETCH_CLASS, 'person']
-                if (is_array($fetch)) {
-                    return $statement->fetchAll(off($fetch, 0), off($fetch, 1));
-                }
-                return $statement->fetchAll($fetch);
+            if (!$statement) {
+                throw new SimplesPersistenceError([$sql, $parameters]);
             }
+            if (!$statement->execute($parameters)) {
+                throw new SimplesPersistenceDataError([$statement->errorInfo()], [$sql, $parameters]);
+            }
+
+            // [PDO::FETCH_CLASS, 'person']
+            if (is_array($fetch)) {
+                return $statement->fetchAll(off($fetch, 0), off($fetch, 1));
+            }
+            return $statement->fetchAll($fetch);
         } catch (Throwable $error) {
             throw new SimplesPersistenceError([$sql, $parameters], [$error]);
         }
-        throw new SimplesPersistenceDataError([$statement->errorInfo()], [$sql, $parameters]);
     }
 
     /**
@@ -128,8 +135,8 @@ abstract class Driver extends Connection implements Persistence
         $sql = $this->getUpdate($clausules);
         $parameters = array_merge(array_values($values), array_values($filters));
         $this->addLog($sql, $parameters, off($clausules, 'log', false));
-        $statement = $this->statement($sql);
         try {
+            $statement = $this->statement($sql);
             if ($statement && $statement->execute($parameters)) {
                 return $statement->rowCount();
             }
@@ -151,8 +158,8 @@ abstract class Driver extends Connection implements Persistence
         $sql = $this->getDelete($clausules);
         $parameters = array_values($values);
         $this->addLog($sql, $values, off($clausules, 'log', false));
-        $statement = $this->statement($sql);
         try {
+            $statement = $this->statement($sql);
             if ($statement && $statement->execute($parameters)) {
                 return $statement->rowCount();
             }
@@ -172,8 +179,8 @@ abstract class Driver extends Connection implements Persistence
     public function run(string $instruction, array $values = []): int
     {
         $this->addLog($instruction, $values);
-        $statement = $this->statement($instruction);
         try {
+            $statement = $this->statement($instruction);
             if ($statement && $statement->execute($values)) {
                 return $statement->rowCount();
             }
@@ -194,8 +201,8 @@ abstract class Driver extends Connection implements Persistence
     public function query(string $instruction, array $values = []): array
     {
         $this->addLog($instruction, $values);
-        $statement = $this->statement($instruction);
         try {
+            $statement = $this->statement($instruction);
             if ($statement && $statement->execute($values)) {
                 return $statement->fetchAll(PDO::FETCH_ASSOC);
             }
@@ -207,6 +214,7 @@ abstract class Driver extends Connection implements Persistence
 
     /**
      * @param string $scope
+     * @throws SimplesRunTimeError
      */
     protected function filters(string $scope)
     {
@@ -214,41 +222,24 @@ abstract class Driver extends Connection implements Persistence
             return $value;
         };
 
-        FilterMap::add($scope, 'equal', $getValue, function ($name) {
-            return "{$name} = ?";
-        });
+        FilterMap::add($scope, 'equal', $getValue, runnable(static::class, 'equal'));
 
-        FilterMap::add($scope, 'not', $getValue, function ($name) {
-            return "{$name} <> ?";
-        });
+        FilterMap::add($scope, 'not', $getValue, runnable(static::class, 'not'));
 
-        FilterMap::add($scope, 'blank', $getValue, function ($name) {
-            return "({$name} IS NULL) OR (NOT {$name})";
-        });
+        FilterMap::add($scope, 'blank', $getValue, runnable(static::class, 'blank'));
 
-        FilterMap::add($scope, 'less-equal-than', $getValue, function ($name) {
-            return "{$name} < ?";
-        });
+        FilterMap::add($scope, 'less-equal-than', $getValue, runnable(static::class, 'lessEqualThan'));
 
-        FilterMap::add($scope, 'less-than', $getValue, function ($name) {
-            return "{$name} < ?";
-        });
+        FilterMap::add($scope, 'less-than', $getValue, runnable(static::class, 'lessThan'));
 
-        FilterMap::add($scope, 'greater-than', $getValue, function ($name) {
-            return "{$name} > ?";
-        });
+        FilterMap::add($scope, 'greater-than', $getValue, runnable(static::class, 'greaterThan'));
 
-        FilterMap::add($scope, 'greater-equal-than', $getValue, function ($name) {
-            return "{$name} >= ?";
-        });
+        FilterMap::add($scope, 'greater-equal-than', $getValue, runnable(static::class, 'greaterEqualThan'));
 
-        FilterMap::add($scope, 'in', function ($value) {
+        $getPipedValue = function ($value) {
             return explode('|', $value);
-        }, function ($name, $value) {
-            $keys = implode(',', array_map(function () {
-                return '?';
-            }, explode('|', $value)));
-            return "{$name} IN ({$keys})";
-        });
+        };
+
+        FilterMap::add($scope, 'in', $getPipedValue, runnable(static::class, 'in'));
     }
 }
