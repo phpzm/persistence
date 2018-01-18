@@ -85,6 +85,23 @@ class Fusion
     }
 
     /**
+     * @param $referenced
+     * @return string
+     */
+    public static function relation(string $referenced): string
+    {
+        return '__' . strtoupper($referenced) . '__';
+    }
+
+    /**
+     * @return string
+     */
+    public function alias(): string
+    {
+        return static::relation($this->references);
+    }
+
+    /**
      * @return string
      */
     public function getReferenced(): string
