@@ -2,6 +2,7 @@
 
 namespace Simples\Persistence\SQL;
 
+use function is_array;
 use Simples\Error\SimplesRunTimeError;
 use Simples\Persistence\Filter;
 use Simples\Persistence\FilterMap;
@@ -89,7 +90,7 @@ trait Modifiers
             $left = "`{$resource->getSource()}`.`{$resource->getReferences()}`";
             $alias = $resource->getCollection();
             if ($resource->isRename()) {
-                $alias = '__' . strtoupper($resource->getReferences()) . '__';
+                $alias = $resource->alias();
             }
             $right = "`{$alias}`.`{$resource->getReferenced()}`";
             $join[] = "{$type} JOIN `{$collection}` AS {$alias} ON ({$left} = {$right})";
@@ -99,14 +100,17 @@ trait Modifiers
     }
 
     /**
-     * @param array $filters
+     * @param array|string $filters
      * @param string $separator
      * @return string
      * @throws SimplesRunTimeError
      */
-    protected function parseWhere(array $filters, string $separator): string
+    protected function parseWhere($filters, string $separator): string
     {
         $parsed = [];
+        if (!is_array($filters)) {
+            $filters = [$filters];
+        }
         foreach ($filters as $filter) {
             if (is_array($filter)) {
                 $parsing = $this->parseWhere($filter['filter'], $filter['separator']);
@@ -124,7 +128,7 @@ trait Modifiers
             }
             $collection = $filter->getCollection();
             if ($filter->hasFrom()) {
-                $collection = '__' . strtoupper($filter->getFrom()->getName()) . '__';
+                $collection = Fusion::relation($filter->getFrom()->getName());
             }
             $name = "{$collection}.{$filter->getName()}";
             $value = $filter->getValue();
@@ -136,42 +140,54 @@ trait Modifiers
     }
 
     /**
-     * @param array $groups
+     * @param array|string $groups
      * @param string $separator
      * @return string
      */
-    protected function parseGroup(array $groups, string $separator): string
+    protected function parseGroup($groups, string $separator): string
     {
+        if (!is_array($groups)) {
+            $groups = [$groups];
+        }
         return implode($separator, $groups);
     }
 
     /**
-     * @param array $orders
+     * @param array|string $orders
      * @param string $separator
      * @return string
      */
-    protected function parseOrder(array $orders, string $separator): string
+    protected function parseOrder($orders, string $separator): string
     {
+        if (!is_array($orders)) {
+            $orders = [$orders];
+        }
         return implode($separator, $orders);
     }
 
     /**
-     * @param array $having
+     * @param array|string $having
      * @param string $separator
      * @return string
      */
-    protected function parseHaving(array $having, string $separator): string
+    protected function parseHaving($having, string $separator): string
     {
+        if (!is_array($having)) {
+            $having = [$having];
+        }
         return implode($separator, $having);
     }
 
     /**
-     * @param array $limits
+     * @param array|string $limits
      * @param string $separator
      * @return string
      */
-    protected function parseLimit(array $limits, string $separator): string
+    protected function parseLimit($limits, string $separator): string
     {
+        if (!is_array($limits)) {
+            $limits = [$limits];
+        }
         return implode($separator, $limits);
     }
 }
