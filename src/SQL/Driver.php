@@ -14,8 +14,6 @@ use Simples\Persistence\SQL\Operations\Read;
 use Simples\Persistence\SQL\Operations\Update;
 use stdClass;
 use Throwable;
-use function is_array;
-use function runnable;
 
 /**
  * Class SQLDriver
@@ -31,6 +29,7 @@ abstract class Driver extends Connection implements Persistence
     /**
      * SQLDriver constructor.
      * @param array $settings
+     * @throws SimplesRunTimeError
      */
     public function __construct(array $settings)
     {
@@ -108,9 +107,8 @@ abstract class Driver extends Connection implements Persistence
             if (!$statement) {
                 throw new SimplesPersistenceError([$sql, $parameters]);
             }
-            if (!$statement->execute($parameters)) {
-                throw new SimplesPersistenceDataError([$statement->errorInfo()], [$sql, $parameters]);
-            }
+            $statement->execute($parameters);
+            // throw new SimplesPersistenceDataError([$statement->errorInfo()], [$sql, $parameters]);
 
             // [PDO::FETCH_CLASS, 'person']
             if (is_array($fetch)) {
