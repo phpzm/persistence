@@ -3,6 +3,7 @@
 namespace Simples\Persistence\SQL;
 
 use Simples\Persistence\Field;
+use Simples\Persistence\Fusion;
 use Simples\Persistence\SQL\Error\SimplesUnsupportedField;
 
 /**
@@ -50,7 +51,7 @@ class SolverColumn
     {
         $collection = $column->getCollection();
         if ($column->hasFrom()) {
-            $collection = '__' . strtoupper($column->getFrom()->getName()) . '__';
+            $collection = Fusion::relation($column->getFrom()->getName());
         }
         $name = $column->getName();
         $options = $column->getOptions();
