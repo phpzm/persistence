@@ -2,6 +2,7 @@
 
 namespace Simples\Persistence;
 
+use Simples\Error\SimplesRunTimeError;
 use Simples\Helper\JSON;
 use Simples\Kernel\App;
 
@@ -102,6 +103,7 @@ class Filter
      * @param string $rule
      * @param mixed $value
      * @return string
+     * @throws SimplesRunTimeError
      */
     public static function apply(string $rule, $value = null): string
     {
